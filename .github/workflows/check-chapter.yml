@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "*/20 * * * *"   # every 20 minutes (GitHub may delay runs a bit)
   workflow_dispatch:          # adds a "Run workflow" button for manual tests
+    inputs:
+      test_notification:
+        description: "Only send a test notification to your phone"
+        type: boolean
+        default: false
 
 permissions:
   contents: write             # needed to save op_state.json back to the repo
@@ -30,7 +35,7 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python op_chapter_bot.py --once
+        run: python op_chapter_bot.py --once ${{ inputs.test_notification && '--test' || '' }}
 
       - name: Save last seen chapter
         run: |

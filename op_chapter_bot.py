@@ -100,6 +100,19 @@ def main() -> None:
     last_seen = load_last_seen()
     print(f"Last seen chapter: {fmt(last_seen) if last_seen else 'none'}")
 
+    # --test: send a test notification and exit (state unchanged)
+    if "--test" in sys.argv:
+        msg = "Test: OPchecker notifications are working"
+        print(msg)
+        if not (DISCORD_WEBHOOK_URL or NTFY_TOPIC):
+            raise RuntimeError("No NTFY_TOPIC or DISCORD_WEBHOOK_URL set")
+        if DISCORD_WEBHOOK_URL:
+            requests.post(DISCORD_WEBHOOK_URL, json={"content": msg}, timeout=15).raise_for_status()
+        if NTFY_TOPIC:
+            requests.post(f"https://ntfy.sh/{NTFY_TOPIC}", data=msg.encode(),
+                          headers={"Title": "OPchecker test"}, timeout=15).raise_for_status()
+        return
+
     # --once: single check then exit (used by GitHub Actions)
     if "--once" in sys.argv:
         check(last_seen)  # errors propagate -> failed run is visible in GitHub
