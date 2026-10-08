@@ -1,0 +1,43 @@
+name: Check One Piece chapter
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"   # every 20 minutes (GitHub may delay runs a bit)
+  workflow_dispatch:          # adds a "Run workflow" button for manual tests
+
+permissions:
+  contents: write             # needed to save op_state.json back to the repo
+
+concurrency:
+  group: op-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Check for new chapter
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python op_chapter_bot.py --once
+
+      - name: Save last seen chapter
+        run: |
+          if [ -n "$(git status --porcelain op_state.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898783+github-actions[bot]@users.noreply.github.com"
+            git add op_state.json
+            git commit -m "Update last seen chapter"
+            git push
+          fi
