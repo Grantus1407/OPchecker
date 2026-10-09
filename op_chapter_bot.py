@@ -29,8 +29,10 @@ import requests
 BASE = "https://tcbonepiecechapters.com"
 STATE_FILE = Path(__file__).with_name("op_state.json")
 MIN_WAIT, MAX_WAIT = 15 * 60, 30 * 60  # seconds
-PROBE_MISSES = 3  # stop probing after this many missing IDs in a row
-PROBE_MAX = 25    # never probe more than this many IDs per check
+# Chapter IDs are shared by all series and have gaps (deleted/unpublished IDs,
+# e.g. 7999-8001 are missing between One Piece 1191 and 1192).
+PROBE_MISSES = 10  # stop probing after this many missing IDs in a row
+PROBE_MAX = 60     # never probe more than this many IDs per check
 
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
 NTFY_TOPIC = os.getenv("NTFY_TOPIC", "")
