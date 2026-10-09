@@ -2,7 +2,7 @@ name: Check One Piece chapter
 
 on:
   schedule:
-    - cron: "*/20 * * * *"   # every 20 minutes (GitHub may delay runs a bit)
+    - cron: "17 * * * *"     # hourly backup; main trigger is cron-job.org every 15 min
   workflow_dispatch:          # adds a "Run workflow" button for manual tests
     inputs:
       test_notification:
